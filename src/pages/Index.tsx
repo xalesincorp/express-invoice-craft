@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { FileText, Settings, Eye } from "lucide-react";
+import gorideIcon from "@/assets/goride-icon.png";
 
 const Index = () => {
   const [invoiceData, setInvoiceData] = useState<InvoiceData>(defaultInvoiceData);
@@ -28,9 +29,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <FileText className="h-6 w-6 text-primary-foreground" />
-              </div>
+              <img src={gorideIcon} alt="GoRide Icon" className="w-10 h-10" />
               <div>
                 <h1 className="text-xl font-bold">GoRide Invoice Generator</h1>
                 <p className="text-sm text-muted-foreground">Generate professional ride invoices</p>

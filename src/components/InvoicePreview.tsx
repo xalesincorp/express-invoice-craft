@@ -1,6 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { InvoiceData } from "@/types/invoice";
 import { Bike, MapPin, Clock, User, CreditCard } from "lucide-react";
+import gorideLogoWhite from "@/assets/goride-logo-white.png";
+import gorideIcon from "@/assets/goride-icon.png";
 
 interface InvoicePreviewProps {
   data: InvoiceData;
@@ -17,8 +19,7 @@ export const InvoicePreview = ({ data }: InvoicePreviewProps) => {
         {/* Header */}
         <div className="bg-primary text-primary-foreground px-6 py-4">
           <div className="flex items-center gap-2 mb-2">
-            <Bike className="h-6 w-6" />
-            <span className="text-xl font-bold">goride</span>
+            <img src={gorideLogoWhite} alt="GoRide Logo" className="h-8" />
           </div>
           <div className="text-sm opacity-90">
             {data.orderDate} ID<br />
@@ -175,7 +176,7 @@ export const InvoicePreview = ({ data }: InvoicePreviewProps) => {
           {/* Company Logo */}
           <div className="text-center">
             <div className="inline-flex items-center gap-2 mb-2">
-              <Bike className="h-6 w-6 text-primary" />
+              <img src={gorideIcon} alt="GoRide Icon" className="h-8 w-8" />
               <span className="text-xl font-bold">gojek</span>
             </div>
             <p className="text-xs text-muted-foreground">
