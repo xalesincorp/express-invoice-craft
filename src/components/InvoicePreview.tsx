@@ -81,56 +81,63 @@ export const InvoicePreview = ({ data }: InvoicePreviewProps) => {
           {/* Trip Details */}
           <div>
             <h3 className="font-semibold mb-3">Detail perjalanan</h3>
-            <div className="space-y-4">
-              {/* Driver Info */}
-              <div className="flex items-start gap-3">
-                <User className="h-5 w-5 text-muted-foreground mt-0.5" />
-                <div>
-                  <p className="font-semibold">{data.driverName}</p>
-                  <p className="text-sm text-muted-foreground">{data.licensePlate} • {data.vehicleType}</p>
-                </div>
-              </div>
-
-              {/* Trip Stats */}
-              <div className="flex gap-4 text-sm">
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-success rounded-full"></div>
-                  <span>Jarak {data.distance}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-success rounded-full"></div>
-                  <span>Waktu perjalanan {data.duration}</span>
-                </div>
-              </div>
-
-              {/* Route */}
-              <div className="space-y-3">
-                {/* Pickup */}
-                <div className="flex gap-3">
-                  <div className="flex flex-col items-center">
-                    <div className="w-3 h-3 bg-success rounded-full"></div>
-                    <div className="w-px h-6 bg-border"></div>
+            
+            {/* Trip Details Card */}
+            <div className="bg-muted/50 rounded-lg p-4 mb-4">
+              <div className="grid grid-cols-2 gap-6">
+                {/* Left Column - Driver & Trip Info */}
+                <div className="space-y-4">
+                  {/* Driver Info */}
+                  <div className="flex items-start gap-3">
+                    <User className="h-5 w-5 text-muted-foreground mt-0.5" />
+                    <div>
+                      <p className="font-semibold">{data.driverName}</p>
+                      <p className="text-sm text-muted-foreground">{data.licensePlate} • {data.vehicleType}</p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">Dijemput {data.orderDate} jam {data.pickupTime} dari</p>
-                    <p className="text-sm font-semibold">{data.pickupAddress}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Jl. Banten, Kebonwaru, Kec. Batununggal, Kota Bandung, Jawa Barat 40272, Indonesia
-                    </p>
+
+                  {/* Trip Stats */}
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-success rounded-full"></div>
+                      <span>Jarak {data.distance}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-success rounded-full"></div>
+                      <span>Waktu perjalanan {data.duration}</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Dropoff */}
-                <div className="flex gap-3">
-                  <div className="flex flex-col items-center">
-                    <div className="w-3 h-3 bg-warning rounded-full"></div>
+                {/* Right Column - Route Details */}
+                <div className="space-y-4">
+                  {/* Pickup */}
+                  <div className="flex gap-3">
+                    <div className="flex flex-col items-center">
+                      <div className="w-3 h-3 bg-success rounded-full"></div>
+                      <div className="w-px h-12 bg-border"></div>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">Dijemput {data.orderDate} jam {data.pickupTime} dari</p>
+                      <p className="text-sm font-semibold">{data.pickupAddress}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Jl. Banten, Kebonwaru, Kec. Batununggal, Kota Bandung, Jawa Barat 40272, Indonesia
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm">Sampai {data.orderDate} jam {data.arrivalTime} di</p>
-                    <p className="text-sm font-semibold">{data.dropoffAddress}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Jl. Malabar No.70, Malabar, Kec. Lengkong, Bandung, Jawa Barat 40262, Indonesia
-                    </p>
+
+                  {/* Dropoff */}
+                  <div className="flex gap-3">
+                    <div className="flex flex-col items-center">
+                      <div className="w-3 h-3 bg-warning rounded-full"></div>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm">Sampai {data.orderDate} jam {data.arrivalTime} di</p>
+                      <p className="text-sm font-semibold">{data.dropoffAddress}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Jl. Malabar No.70, Malabar, Kec. Lengkong, Bandung, Jawa Barat 40262, Indonesia
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -157,18 +164,23 @@ export const InvoicePreview = ({ data }: InvoicePreviewProps) => {
           <div className="text-center">
             <p className="text-sm font-medium mb-3">Kontak Gojek lewat</p>
             <div className="flex justify-center gap-4">
+              {/* Instagram */}
               <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
                 <span className="text-xs">📷</span>
               </div>
+              {/* Twitter */}
               <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
                 <span className="text-xs">🐦</span>
               </div>
+              {/* Facebook */}
               <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
                 <span className="text-xs">📘</span>
               </div>
+              {/* YouTube */}
               <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
                 <span className="text-xs">📺</span>
               </div>
+              {/* LinkedIn */}
               <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
                 <span className="text-xs">💼</span>
               </div>
