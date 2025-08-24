@@ -18,12 +18,14 @@ export const InvoicePreview = ({ data }: InvoicePreviewProps) => {
       <Card className="bg-card border-0 shadow-lg overflow-hidden">
         {/* Header */}
         <div className="bg-primary text-primary-foreground px-6 py-4">
-          <div className="flex items-center gap-2 mb-2">
-            <img src={gorideLogoWhite} alt="GoRide Logo" className="h-8" />
-          </div>
-          <div className="text-sm opacity-90">
-            {data.orderDate} ID<br />
-            pesanan: {data.orderId}
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-2">
+              <img src={gorideLogoWhite} alt="GoRide Logo" className="h-8" />
+            </div>
+            <div className="text-sm opacity-90 text-right">
+              {data.orderDate} ID<br />
+              pesanan: {data.orderId}
+            </div>
           </div>
         </div>
 
