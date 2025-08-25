@@ -1,8 +1,10 @@
 import { Card } from "@/components/ui/card";
 import { InvoiceData } from "@/types/invoice";
-import { Bike, MapPin, Clock, User, CreditCard } from "lucide-react";
+import { User } from "lucide-react";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faInstagram, faTwitter, faFacebookF, faYoutube, faLinkedinIn } from '@fortawesome/free-brands-svg-icons';
 import gorideLogoWhite from "@/assets/goride-logo-white.png";
-import gorideIcon from "@/assets/goride-icon.png";
+import { MopedIcon } from "./MopedIcon";
 
 interface InvoicePreviewProps {
   data: InvoiceData;
@@ -166,23 +168,23 @@ export const InvoicePreview = ({ data }: InvoicePreviewProps) => {
             <div className="flex justify-center gap-4">
               {/* Instagram */}
               <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
-                <span className="text-xs">📷</span>
+                <FontAwesomeIcon icon={faInstagram} className="text-primary" size="sm" />
               </div>
               {/* Twitter */}
               <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
-                <span className="text-xs">🐦</span>
+                <FontAwesomeIcon icon={faTwitter} className="text-primary" size="sm" />
               </div>
               {/* Facebook */}
               <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
-                <span className="text-xs">📘</span>
+                <FontAwesomeIcon icon={faFacebookF} className="text-primary" size="sm" />
               </div>
               {/* YouTube */}
               <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
-                <span className="text-xs">📺</span>
+                <FontAwesomeIcon icon={faYoutube} className="text-primary" size="sm" />
               </div>
               {/* LinkedIn */}
               <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
-                <span className="text-xs">💼</span>
+                <FontAwesomeIcon icon={faLinkedinIn} className="text-primary" size="sm" />
               </div>
             </div>
           </div>
@@ -190,8 +192,8 @@ export const InvoicePreview = ({ data }: InvoicePreviewProps) => {
           {/* Company Logo */}
           <div className="text-center">
             <div className="inline-flex items-center gap-2 mb-2">
-              <img src={gorideIcon} alt="GoRide Icon" className="h-8 w-8" />
-              <span className="text-xl font-bold">gojek</span>
+              <MopedIcon size={32} />
+              <span className="text-xl font-bold">goride</span>
             </div>
             <p className="text-xs text-muted-foreground">
               Pasaraya Blok M GD B, 7th Floor, Kebayoran<br />
