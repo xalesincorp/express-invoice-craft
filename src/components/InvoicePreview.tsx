@@ -23,7 +23,7 @@ export const InvoicePreview = ({ data }: InvoicePreviewProps) => {
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-2">
               <img src="/lovable-uploads/f36b63fc-4651-413b-a401-23854372b191.png" alt="GoRide Logo" className="h-8" />
-              <span className="text-2xl font-bold font-sans text-primary-foreground">goride</span>
+              <span className="text-3xl font-bold font-sans text-primary-foreground">goride</span>
             </div>
             <div className="text-sm opacity-90 text-right">
               {data.orderDate} ID<br />

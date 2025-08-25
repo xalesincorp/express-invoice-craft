@@ -18,10 +18,10 @@ All colors MUST be HSL.
     --popover-foreground: 220 10% 15%;
 
     /* GoRide-inspired green branding */
-    --primary: 142 76% 36%;
+    --primary: 120 100% 25%;
     --primary-foreground: 0 0% 100%;
-    --primary-light: 142 76% 45%;
-    --primary-dark: 142 76% 28%;
+    --primary-light: 120 100% 35%;
+    --primary-dark: 120 100% 20%;
 
     --secondary: 210 20% 96%;
     --secondary-foreground: 220 10% 15%;
@@ -30,17 +30,17 @@ All colors MUST be HSL.
     --muted-foreground: 220 5% 55%;
 
     --accent: 142 40% 95%;
-    --accent-foreground: 142 76% 28%;
+    --accent-foreground: 120 100% 20%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 142 76% 36%;
+    --ring: 120 100% 25%;
 
     /* Custom design tokens */
-    --success: 142 76% 36%;
+    --success: 120 100% 25%;
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
