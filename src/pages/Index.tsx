@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { InvoiceData, defaultInvoiceData } from "@/types/invoice";
 import { InvoicePreview } from "@/components/InvoicePreview";
 import { InvoiceForm } from "@/components/InvoiceForm";
@@ -12,15 +12,15 @@ const Index = () => {
   const [invoiceData, setInvoiceData] = useState<InvoiceData>(defaultInvoiceData);
   const [activeTab, setActiveTab] = useState("form");
   const { toast } = useToast();
+  const invoiceFormRef = useRef<{ generatePDF: () => void }>(null);
 
   const handleGeneratePDF = () => {
-    // This will be implemented in Phase 2
-    toast({
-      title: "PDF Generation",
-      description: "PDF generation akan diimplementasikan di Phase 2. Untuk saat ini, Anda bisa melihat preview invoice.",
-      duration: 5000,
-    });
+    if (invoiceFormRef.current) {
+      invoiceFormRef.current.generatePDF();
+    }
   };
+
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -69,9 +69,9 @@ const Index = () => {
                 </p>
               </div>
               <InvoiceForm
+                ref={invoiceFormRef}
                 data={invoiceData}
                 onDataChange={setInvoiceData}
-                onGeneratePDF={handleGeneratePDF}
               />
             </div>
           </TabsContent>
@@ -86,16 +86,7 @@ const Index = () => {
             <div className="flex justify-center">
               <InvoicePreview data={invoiceData} />
             </div>
-            <div className="flex justify-center">
-              <Button 
-                onClick={handleGeneratePDF}
-                size="lg"
-                className="min-w-[200px]"
-              >
-                <FileText className="h-5 w-5 mr-2" />
-                Generate PDF
-              </Button>
-            </div>
+
           </TabsContent>
         </Tabs>
       </main>
@@ -108,7 +99,7 @@ const Index = () => {
               <h3 className="font-semibold mb-3">🚀 Development Phases</h3>
               <div className="grid md:grid-cols-2 gap-4 text-sm">
                 <div>
-                  <h4 className="font-medium text-success mb-2">✅ Phase 1 (Current)</h4>
+                  <h4 className="font-medium text-success mb-2">✅ Phase 1 (Completed)</h4>
                   <ul className="text-muted-foreground space-y-1">
                     <li>• Invoice template UI (GoRide style)</li>
                     <li>• Settings form untuk input data</li>
@@ -117,9 +108,9 @@ const Index = () => {
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-medium text-warning mb-2">🔄 Phase 2 (Next)</h4>
+                  <h4 className="font-medium text-success mb-2">✅ Phase 2 (Current)</h4>
                   <ul className="text-muted-foreground space-y-1">
-                    <li>• PDF generation & download</li>
+                    <li>• ✅ PDF generation & download</li>
                     <li>• Data persistence & management</li>
                     <li>• Bulk operations</li>
                     <li>• Custom templates</li>

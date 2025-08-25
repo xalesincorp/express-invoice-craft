@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, forwardRef, useImperativeHandle } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,19 +6,53 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { InvoiceData } from "@/types/invoice";
-import { Settings, FileText } from "lucide-react";
+import { Settings, FileText, Download } from "lucide-react";
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 interface InvoiceFormProps {
   data: InvoiceData;
   onDataChange: (data: InvoiceData) => void;
-  onGeneratePDF: () => void;
 }
 
-export const InvoiceForm = ({ data, onDataChange, onGeneratePDF }: InvoiceFormProps) => {
+export const InvoiceForm = forwardRef(({ data, onDataChange }: InvoiceFormProps, ref) => {
   const handleInputChange = (field: keyof InvoiceData, value: string | number) => {
     onDataChange({
       ...data,
       [field]: value,
+    });
+  };
+
+  useImperativeHandle(ref, () => ({
+    generatePDF
+  }));
+
+  const generatePDF = () => {
+    const invoiceElement = document.getElementById('invoice-preview');
+    if (!invoiceElement) return;
+
+    const opt = {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff'
+    };
+
+    html2canvas(invoiceElement, opt).then((canvas) => {
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      
+      const imgX = (pdfWidth - imgWidth * ratio) / 2;
+      const imgY = 10;
+      
+      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+      pdf.save(`invoice-${data.orderId}.pdf`);
     });
   };
 
@@ -267,18 +301,8 @@ export const InvoiceForm = ({ data, onDataChange, onGeneratePDF }: InvoiceFormPr
           </div>
         </div>
 
-        {/* Generate Button */}
-        <div className="pt-4 border-t">
-          <Button 
-            onClick={onGeneratePDF}
-            className="w-full"
-            size="lg"
-          >
-            <FileText className="h-5 w-5 mr-2" />
-            Generate PDF Invoice
-          </Button>
-        </div>
+
       </CardContent>
     </Card>
   );
-};
+});

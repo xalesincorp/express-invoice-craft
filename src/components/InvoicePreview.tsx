@@ -16,14 +16,14 @@ export const InvoicePreview = ({ data }: InvoicePreviewProps) => {
   };
 
   return (
-    <div className="max-w-md mx-auto">
+    <div id="invoice-preview" className="max-w-md mx-auto">
       <Card className="bg-card border-0 shadow-lg overflow-hidden">
         {/* Header */}
         <div className="bg-primary text-primary-foreground px-6 py-4">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-2">
               <img src="/lovable-uploads/f36b63fc-4651-413b-a401-23854372b191.png" alt="GoRide Logo" className="h-8" />
-              <span className="text-3xl font-bold font-sans text-primary-foreground">goride</span>
+              <span className="text-3xl font-bold font-gojek text-primary-foreground">goride</span>
             </div>
             <div className="text-sm opacity-90 text-right">
               {data.orderDate} ID<br />
@@ -194,7 +194,7 @@ export const InvoicePreview = ({ data }: InvoicePreviewProps) => {
           <div className="text-center">
             <div className="inline-flex items-center gap-2 mb-2">
               <MopedIcon size={32} />
-              <span className="text-2xl font-bold font-sans">gojek</span>
+
             </div>
             <p className="text-xs text-muted-foreground">
               Pasaraya Blok M GD B, 7th Floor, Kebayoran<br />
