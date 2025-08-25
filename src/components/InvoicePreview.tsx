@@ -193,7 +193,7 @@ export const InvoicePreview = ({ data }: InvoicePreviewProps) => {
           <div className="text-center">
             <div className="inline-flex items-center gap-2 mb-2">
               <MopedIcon size={32} />
-              <span className="text-xl font-bold">goride</span>
+              <span className="text-xl font-bold">gojek</span>
             </div>
             <p className="text-xs text-muted-foreground">
               Pasaraya Blok M GD B, 7th Floor, Kebayoran<br />
