@@ -6,53 +6,51 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { InvoiceData } from "@/types/invoice";
-import { Settings, FileText, Download } from "lucide-react";
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import { Settings, FileText, Download, Save, Calculator } from "lucide-react";
+import { usePDFGenerator } from "@/hooks/usePDFGenerator";
+import { useToast } from "@/hooks/use-toast";
 
 interface InvoiceFormProps {
   data: InvoiceData;
   onDataChange: (data: InvoiceData) => void;
+  onSaveInvoice?: () => void;
 }
 
-export const InvoiceForm = forwardRef(({ data, onDataChange }: InvoiceFormProps, ref) => {
+export const InvoiceForm = forwardRef(({ data, onDataChange, onSaveInvoice }: InvoiceFormProps, ref) => {
+  const { generatePDF } = usePDFGenerator();
+  const { toast } = useToast();
+
   const handleInputChange = (field: keyof InvoiceData, value: string | number) => {
-    onDataChange({
+    const updatedData = {
       ...data,
       [field]: value,
-    });
+    };
+    
+    // Auto-calculate total if payment fields change
+    if (['baseFare', 'appFee', 'insuranceFee', 'discount'].includes(field)) {
+      const baseFare = field === 'baseFare' ? Number(value) : data.baseFare;
+      const appFee = field === 'appFee' ? Number(value) : data.appFee;
+      const insuranceFee = field === 'insuranceFee' ? Number(value) : data.insuranceFee;
+      const discount = field === 'discount' ? Number(value) : data.discount;
+      
+      const calculatedTotal = baseFare + appFee + insuranceFee - discount;
+      updatedData.totalAmount = Math.max(0, calculatedTotal);
+    }
+    
+    onDataChange(updatedData);
   };
 
   useImperativeHandle(ref, () => ({
-    generatePDF
+    generatePDF: () => generatePDF(data)
   }));
 
-  const generatePDF = () => {
-    const invoiceElement = document.getElementById('invoice-preview');
-    if (!invoiceElement) return;
-
-    const opt = {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: '#ffffff'
-    };
-
-    html2canvas(invoiceElement, opt).then((canvas) => {
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-      
-      const imgX = (pdfWidth - imgWidth * ratio) / 2;
-      const imgY = 10;
-      
-      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-      pdf.save(`invoice-${data.orderId}.pdf`);
+  const handleCalculateTotal = () => {
+    const total = data.baseFare + data.appFee + data.insuranceFee - data.discount;
+    handleInputChange('totalAmount', Math.max(0, total));
+    
+    toast({
+      title: "Total calculated",
+      description: `Total amount updated to Rp${Math.max(0, total).toLocaleString('id-ID')}`,
     });
   };
 
@@ -274,14 +272,25 @@ export const InvoiceForm = forwardRef(({ data, onDataChange }: InvoiceFormProps,
             </div>
             <div>
               <Label htmlFor="totalAmount">Total Pembayaran (Rp)</Label>
-              <Input
-                id="totalAmount"
-                type="number"
-                value={data.totalAmount}
-                onChange={(e) => handleInputChange('totalAmount', parseInt(e.target.value) || 0)}
-                placeholder="36500"
-                className="font-semibold"
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="totalAmount"
+                  type="number"
+                  value={data.totalAmount}
+                  onChange={(e) => handleInputChange('totalAmount', parseInt(e.target.value) || 0)}
+                  placeholder="36500"
+                  className="font-semibold"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCalculateTotal}
+                  title="Auto-calculate total"
+                >
+                  <Calculator className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -301,6 +310,26 @@ export const InvoiceForm = forwardRef(({ data, onDataChange }: InvoiceFormProps,
           </div>
         </div>
 
+        {/* Quick Actions */}
+        <div className="flex gap-3 pt-4 border-t">
+          {onSaveInvoice && (
+            <Button
+              onClick={onSaveInvoice}
+              variant="outline"
+              className="flex-1"
+            >
+              <Save className="h-4 w-4 mr-2" />
+              Save Invoice
+            </Button>
+          )}
+          <Button
+            onClick={() => generatePDF(data)}
+            className="flex-1"
+          >
+            <FileText className="h-4 w-4 mr-2" />
+            Generate PDF
+          </Button>
+        </div>
 
       </CardContent>
     </Card>

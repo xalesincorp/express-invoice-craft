@@ -1,11 +1,14 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { InvoiceData, defaultInvoiceData } from "@/types/invoice";
 import { InvoicePreview } from "@/components/InvoicePreview";
 import { InvoiceForm } from "@/components/InvoiceForm";
+import { InvoiceManager } from "@/components/InvoiceManager";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { FileText, Settings, Eye } from "lucide-react";
+import { useInvoiceStorage } from "@/hooks/useInvoiceStorage";
+import { usePDFGenerator } from "@/hooks/usePDFGenerator";
+import { FileText, Settings, Eye, Archive, Plus } from "lucide-react";
 import gorideIcon from "@/assets/goride-icon.png";
 
 const Index = () => {
@@ -13,11 +16,74 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState("form");
   const { toast } = useToast();
   const invoiceFormRef = useRef<{ generatePDF: () => void }>(null);
+  
+  const { 
+    currentInvoice, 
+    saveCurrentInvoice, 
+    saveInvoice,
+    savedInvoices 
+  } = useInvoiceStorage();
+  
+  const { generatePDF } = usePDFGenerator();
 
-  const handleGeneratePDF = () => {
-    if (invoiceFormRef.current) {
-      invoiceFormRef.current.generatePDF();
+  // Load current invoice on mount
+  useEffect(() => {
+    if (currentInvoice && Object.keys(currentInvoice).length > 0) {
+      setInvoiceData(currentInvoice);
     }
+  }, [currentInvoice]);
+
+  // Auto-save current invoice when data changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      saveCurrentInvoice(invoiceData);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [invoiceData, saveCurrentInvoice]);
+
+  const handleGeneratePDF = async () => {
+    await generatePDF(invoiceData);
+  };
+
+  const handleSaveInvoice = () => {
+    try {
+      const savedInvoice = saveInvoice(invoiceData);
+      toast({
+        title: "Invoice saved successfully!",
+        description: `Invoice ${savedInvoice.orderId} has been saved`,
+      });
+      setActiveTab("manager");
+    } catch (error) {
+      toast({
+        title: "Error saving invoice",
+        description: "Failed to save invoice. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditInvoice = (invoice: InvoiceData) => {
+    setInvoiceData(invoice);
+    setActiveTab("form");
+    toast({
+      title: "Invoice loaded",
+      description: "Invoice data loaded for editing",
+    });
+  };
+
+  const handleViewInvoice = (invoice: InvoiceData) => {
+    setInvoiceData(invoice);
+    setActiveTab("preview");
+  };
+
+  const handleNewInvoice = () => {
+    setInvoiceData(defaultInvoiceData);
+    setActiveTab("form");
+    toast({
+      title: "New invoice created",
+      description: "Ready to create a new invoice",
+    });
   };
 
 
@@ -32,16 +98,28 @@ const Index = () => {
               <img src={gorideIcon} alt="GoRide Icon" className="w-10 h-10" />
               <div>
                 <h1 className="text-xl font-bold">GoRide Invoice Generator</h1>
-                <p className="text-sm text-muted-foreground">Generate professional ride invoices</p>
+                <p className="text-sm text-muted-foreground">
+                  Generate professional ride invoices • {savedInvoices.length} saved
+                </p>
               </div>
             </div>
-            <Button 
-              onClick={handleGeneratePDF}
-              className="hidden md:flex"
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              Generate PDF
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={handleNewInvoice}
+                variant="outline"
+                className="hidden sm:flex"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                New Invoice
+              </Button>
+              <Button 
+                onClick={handleGeneratePDF}
+                className="hidden md:flex"
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                Generate PDF
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -49,7 +127,7 @@ const Index = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
+          <TabsList className="grid w-full grid-cols-3 max-w-lg mx-auto">
             <TabsTrigger value="form" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
               <span className="hidden sm:inline">Settings</span>
@@ -57,6 +135,10 @@ const Index = () => {
             <TabsTrigger value="preview" className="flex items-center gap-2">
               <Eye className="h-4 w-4" />
               <span className="hidden sm:inline">Preview</span>
+            </TabsTrigger>
+            <TabsTrigger value="manager" className="flex items-center gap-2">
+              <Archive className="h-4 w-4" />
+              <span className="hidden sm:inline">Manager</span>
             </TabsTrigger>
           </TabsList>
 
@@ -72,6 +154,7 @@ const Index = () => {
                 ref={invoiceFormRef}
                 data={invoiceData}
                 onDataChange={setInvoiceData}
+                onSaveInvoice={handleSaveInvoice}
               />
             </div>
           </TabsContent>
@@ -87,6 +170,19 @@ const Index = () => {
               <InvoicePreview data={invoiceData} />
             </div>
 
+          </TabsContent>
+
+          <TabsContent value="manager" className="space-y-6">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold mb-2">Invoice Manager</h2>
+              <p className="text-muted-foreground">
+                Manage, edit, and download your saved invoices
+              </p>
+            </div>
+            <InvoiceManager
+              onEditInvoice={handleEditInvoice}
+              onViewInvoice={handleViewInvoice}
+            />
           </TabsContent>
         </Tabs>
       </main>
@@ -108,12 +204,13 @@ const Index = () => {
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-medium text-success mb-2">✅ Phase 2 (Current)</h4>
+                  <h4 className="font-medium text-success mb-2">✅ Phase 2 (Completed)</h4>
                   <ul className="text-muted-foreground space-y-1">
-                    <li>• ✅ PDF generation & download</li>
-                    <li>• Data persistence & management</li>
-                    <li>• Bulk operations</li>
-                    <li>• Custom templates</li>
+                    <li>• ✅ Enhanced PDF generation & download</li>
+                    <li>• ✅ Data persistence & auto-save</li>
+                    <li>• ✅ Invoice management system</li>
+                    <li>• ✅ Bulk operations & search</li>
+                    <li>• ✅ Auto-calculation features</li>
                   </ul>
                 </div>
               </div>
