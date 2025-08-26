@@ -26,6 +26,28 @@ export const InvoiceForm = forwardRef(({ data, onDataChange, onSaveInvoice }: In
       [field]: value,
     };
     
+    // Auto-calculate based on distance
+    if (field === 'distance') {
+      const distanceValue = Number(value);
+      if (distanceValue > 0) {
+        // Format distance with "km"
+        updatedData.distance = `${distanceValue} km`;
+        
+        // Calculate trip cost: 1 km = 2500 IDR
+        const calculatedBaseFare = distanceValue * 2500;
+        updatedData.baseFare = calculatedBaseFare;
+        
+        // Calculate duration: 1 km = 3-4 minutes (random)
+        const minutesPerKm = 3 + Math.random(); // Random between 3-4
+        const calculatedDuration = Math.round(distanceValue * minutesPerKm);
+        updatedData.duration = `${calculatedDuration} menit`;
+        
+        // Auto-calculate total
+        const calculatedTotal = calculatedBaseFare + data.appFee + data.insuranceFee - data.discount;
+        updatedData.totalAmount = Math.max(0, calculatedTotal);
+      }
+    }
+    
     // Auto-calculate total if payment fields change
     if (['baseFare', 'appFee', 'insuranceFee', 'discount'].includes(field)) {
       const baseFare = field === 'baseFare' ? Number(value) : data.baseFare;
