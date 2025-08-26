@@ -171,12 +171,15 @@ export const InvoiceForm = forwardRef(({ data, onDataChange, onSaveInvoice }: In
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="distance">Jarak</Label>
+                <Label htmlFor="distance">Jarak (km)</Label>
                 <Input
                   id="distance"
-                  value={data.distance}
-                  onChange={(e) => handleInputChange('distance', e.target.value)}
-                  placeholder="13.5 km"
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={data.distance.replace(' km', '')}
+                  onChange={(e) => handleInputChange('distance', parseInt(e.target.value) || 0)}
+                  placeholder="13"
                 />
               </div>
               <div>
