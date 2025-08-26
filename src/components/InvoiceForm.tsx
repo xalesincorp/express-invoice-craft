@@ -1,10 +1,11 @@
-import { useState, useRef, forwardRef, useImperativeHandle } from "react";
+import { useState, useRef, forwardRef, useImperativeHandle, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TimePicker } from "@/components/ui/time-picker";
 import { InvoiceData } from "@/types/invoice";
 import { Settings, FileText, Download, Save, Calculator } from "lucide-react";
 import { usePDFGenerator } from "@/hooks/usePDFGenerator";
@@ -19,6 +20,30 @@ interface InvoiceFormProps {
 export const InvoiceForm = forwardRef(({ data, onDataChange, onSaveInvoice }: InvoiceFormProps, ref) => {
   const { generatePDF } = usePDFGenerator();
   const { toast } = useToast();
+
+  // Helper function to calculate arrival time based on pickup time and duration
+  const calculateArrivalTime = (pickupTime: string, duration: string): string => {
+    if (!pickupTime || !duration) return "";
+    
+    // Parse pickup time
+    const [pickupHour, pickupMinute] = pickupTime.split(':').map(Number);
+    
+    // Parse duration (format: "XX menit")
+    const durationMatch = duration.match(/(\d+)\s*menit/);
+    if (!durationMatch) return "";
+    
+    const durationMinutes = parseInt(durationMatch[1]);
+    
+    // Calculate total minutes
+    const totalMinutes = pickupHour * 60 + pickupMinute + durationMinutes;
+    
+    // Handle overflow (next day)
+    const finalHour = Math.floor(totalMinutes / 60) % 24;
+    const finalMinute = totalMinutes % 60;
+    
+    // Format as HH:MM
+    return `${finalHour.toString().padStart(2, '0')}:${finalMinute.toString().padStart(2, '0')}`;
+  };
 
   const handleInputChange = (field: keyof InvoiceData, value: string | number) => {
     const updatedData = {
@@ -42,9 +67,31 @@ export const InvoiceForm = forwardRef(({ data, onDataChange, onSaveInvoice }: In
         const calculatedDuration = Math.round(distanceValue * minutesPerKm);
         updatedData.duration = `${calculatedDuration} menit`;
         
+        // Auto-calculate arrival time based on pickup time and duration
+        const calculatedArrivalTime = calculateArrivalTime(updatedData.pickupTime, updatedData.duration);
+        if (calculatedArrivalTime) {
+          updatedData.arrivalTime = calculatedArrivalTime;
+        }
+        
         // Auto-calculate total
         const calculatedTotal = calculatedBaseFare + data.appFee + data.insuranceFee - data.discount;
         updatedData.totalAmount = Math.max(0, calculatedTotal);
+      }
+    }
+    
+    // Auto-calculate arrival time when pickup time changes
+    if (field === 'pickupTime') {
+      const calculatedArrivalTime = calculateArrivalTime(value as string, data.duration);
+      if (calculatedArrivalTime) {
+        updatedData.arrivalTime = calculatedArrivalTime;
+      }
+    }
+    
+    // Auto-calculate arrival time when duration changes
+    if (field === 'duration') {
+      const calculatedArrivalTime = calculateArrivalTime(data.pickupTime, value as string);
+      if (calculatedArrivalTime) {
+        updatedData.arrivalTime = calculatedArrivalTime;
       }
     }
     
@@ -151,23 +198,22 @@ export const InvoiceForm = forwardRef(({ data, onDataChange, onSaveInvoice }: In
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="pickupTime">Waktu Jemput</Label>
-                <Input
-                  id="pickupTime"
-                  value={data.pickupTime}
-                  onChange={(e) => handleInputChange('pickupTime', e.target.value)}
-                  placeholder="19:22"
-                />
-              </div>
+              <Label htmlFor="pickupTime">Waktu Jemput</Label>
+              <TimePicker
+                value={data.pickupTime}
+                onChange={(value) => handleInputChange('pickupTime', value)}
+                placeholder="Pilih waktu jemput"
+              />
+            </div>
               <div>
-                <Label htmlFor="arrivalTime">Waktu Sampai</Label>
-                <Input
-                  id="arrivalTime"
-                  value={data.arrivalTime}
-                  onChange={(e) => handleInputChange('arrivalTime', e.target.value)}
-                  placeholder="20:03"
-                />
-              </div>
+                  <Label htmlFor="arrivalTime">Waktu Sampai</Label>
+                  <TimePicker
+                    value={data.arrivalTime}
+                    onChange={(value) => handleInputChange('arrivalTime', value)}
+                    placeholder="Otomatis dihitung"
+                    disabled
+                  />
+                </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>

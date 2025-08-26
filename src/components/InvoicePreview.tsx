@@ -15,20 +15,77 @@ export const InvoicePreview = ({ data }: InvoicePreviewProps) => {
     return `Rp${amount.toLocaleString('id-ID')}`;
   };
 
+  const parseAddress = (fullAddress: string) => {
+    const kelurahanMatch = fullAddress.match(/,\s*([^,]+),\s*Kec\.\s*([^,]+)/);
+    if (kelurahanMatch) {
+      const kelurahan = kelurahanMatch[1].trim();
+      const kecamatan = kelurahanMatch[2].trim();
+      return {
+        detail: `${kelurahan}, Kec. ${kecamatan}`,
+        point: fullAddress.trim()
+      };
+    }
+    
+    // Fallback jika tidak menemukan pattern yang sesuai
+    const parts = fullAddress.split(',');
+    if (parts.length >= 3) {
+      const lastTwoParts = parts.slice(-3, -1).map(p => p.trim());
+      return {
+        detail: lastTwoParts.join(', '),
+        point: fullAddress.trim()
+      };
+    }
+    
+    return {
+      detail: fullAddress.trim(),
+      point: fullAddress.trim()
+    };
+  };
+
   return (
     <div id="invoice-preview" className="max-w-md mx-auto">
       <Card className="bg-card border-0 shadow-lg overflow-hidden">
         {/* Header */}
-        <div className="bg-primary text-primary-foreground px-6 py-4">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-2">
-              <img src="/lovable-uploads/f36b63fc-4651-413b-a401-23854372b191.png" alt="GoRide Logo" className="h-8" />
-              <span className="text-3xl font-bold font-gojek text-primary-foreground">goride</span>
-            </div>
-            <div className="text-sm opacity-90 text-right">
-              {data.orderDate} ID<br />
-              pesanan: {data.orderId}
-            </div>
+        <div 
+          className="px-6 py-4" 
+          style={{
+            background: '#00860d',
+            color: '#fff',
+            display: 'flex',
+            alignItems: 'stretch', // Ubah dari 'flex-end' ke 'center'
+            justifyContent: 'space-between',
+            minHeight: '60px' // Tambahkan min-height untuk konsistensi
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'stretch', gap: '8px' }}>
+            <img 
+              src="/lovable-uploads/f36b63fc-4651-413b-a401-23854372b191.png" 
+              alt="GoRide Logo" 
+              style={{ height: '40px' }}
+            />
+            <span 
+              style={{
+                fontSize: '32px',
+                fontWeight: 'bold',
+                color: '#fff',
+                lineHeight: '1',
+                marginLeft: '4px'
+              }}
+            >
+              goride
+            </span>
+          </div>
+          
+          <div 
+            style={{
+              fontSize: '14px',
+              color: '#fff',
+              textAlign: 'right',
+              opacity: '0.9'
+            }}
+          >
+            {data.orderDate} ID<br />
+            pesanan: {data.orderId}
           </div>
         </div>
 
@@ -122,9 +179,9 @@ export const InvoicePreview = ({ data }: InvoicePreviewProps) => {
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-medium">Dijemput {data.orderDate} jam {data.pickupTime} dari</p>
-                      <p className="text-sm font-semibold">{data.pickupAddress}</p>
+                      <p className="text-sm font-semibold">{parseAddress(data.pickupAddress).detail}</p>
                       <p className="text-xs text-muted-foreground">
-                        Jl. Banten, Kebonwaru, Kec. Batununggal, Kota Bandung, Jawa Barat 40272, Indonesia
+                        {parseAddress(data.pickupAddress).point}
                       </p>
                     </div>
                   </div>
@@ -133,12 +190,13 @@ export const InvoicePreview = ({ data }: InvoicePreviewProps) => {
                   <div className="flex gap-3">
                     <div className="flex flex-col items-center">
                       <div className="w-3 h-3 bg-warning rounded-full"></div>
+                      <div className="w-px h-12 bg-border"></div>
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm">Sampai {data.orderDate} jam {data.arrivalTime} di</p>
-                      <p className="text-sm font-semibold">{data.dropoffAddress}</p>
+                      <p className="text-sm font-medium">Sampai {data.orderDate} jam {data.arrivalTime} di</p>
+                      <p className="text-sm font-semibold">{parseAddress(data.dropoffAddress).detail}</p>
                       <p className="text-xs text-muted-foreground">
-                        Jl. Malabar No.70, Malabar, Kec. Lengkong, Bandung, Jawa Barat 40262, Indonesia
+                        {parseAddress(data.dropoffAddress).point}
                       </p>
                     </div>
                   </div>

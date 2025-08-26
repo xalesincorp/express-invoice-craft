@@ -1,6 +1,4 @@
 import { useCallback } from 'react';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import { InvoiceData } from '@/types/invoice';
 import { useToast } from '@/hooks/use-toast';
 
@@ -16,77 +14,68 @@ export const usePDFGenerator = () => {
 
       // Show loading toast
       toast({
-        title: "Generating PDF...",
-        description: "Please wait while we create your invoice PDF",
+        title: "Preparing print...",
+        description: "Opening print dialog for invoice",
       });
 
-      // Wait a bit for any dynamic content to render
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Add print-specific styles
+      const style = document.createElement('style');
+      style.innerHTML = `
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          #${elementId}, #${elementId} * {
+            visibility: visible;
+          }
+          body {
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          #${elementId} {
+            position: relative !important;
+            left: auto !important;
+            top: -270px !important;
+            width: 450px !important;
+            max-width: 450px !important;
+            margin: 0 auto !important;
+            padding: 8px !important;
+            box-shadow: none !important;
+            border: none !important;
+            text-align: justify !important;
+          }
+          .no-print {
+            display: none !important;
+          }
+          @page {
+            margin: none;
+          }
+        }
+      `;
+      document.head.appendChild(style);
 
-      const canvas = await html2canvas(invoiceElement, {
-        scale: 3, // Higher quality
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        logging: false,
-        width: invoiceElement.scrollWidth,
-        height: invoiceElement.scrollHeight,
-        windowWidth: invoiceElement.scrollWidth,
-        windowHeight: invoiceElement.scrollHeight,
-      });
-
-      const imgData = canvas.toDataURL('image/png', 1.0);
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      
-      // Calculate dimensions to fit A4
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      
-      // Calculate scale to fit width while maintaining aspect ratio
-      const scale = (pdfWidth - 20) / imgWidth; // 10mm margin on each side
-      const scaledWidth = imgWidth * scale;
-      const scaledHeight = imgHeight * scale;
-      
-      // Center the image horizontally
-      const imgX = (pdfWidth - scaledWidth) / 2;
-      const imgY = 10; // 10mm top margin
-      
-      // If image is too tall, scale down further
-      const maxHeight = pdfHeight - 20; // 10mm margin top and bottom
-      let finalWidth = scaledWidth;
-      let finalHeight = scaledHeight;
-      
-      if (scaledHeight > maxHeight) {
-        const heightScale = maxHeight / scaledHeight;
-        finalWidth = scaledWidth * heightScale;
-        finalHeight = maxHeight;
-      }
-      
-      // Center the final image
-      const finalX = (pdfWidth - finalWidth) / 2;
-      
-      pdf.addImage(imgData, 'PNG', finalX, imgY, finalWidth, finalHeight);
-      
-      // Generate filename with order ID and timestamp
-      const timestamp = new Date().toISOString().slice(0, 10);
-      const filename = `invoice-${invoiceData.orderId || 'unknown'}-${timestamp}.pdf`;
-      
-      pdf.save(filename);
+      // Trigger print dialog
+      setTimeout(() => {
+        window.print();
+        
+        // Clean up after print
+        setTimeout(() => {
+          document.head.removeChild(style);
+        }, 1000);
+      }, 100);
 
       toast({
-        title: "PDF Generated Successfully!",
-        description: `Invoice saved as ${filename}`,
+        title: "Print dialog opened",
+        description: "Use your browser's print dialog to save as PDF",
       });
 
-      return { success: true, filename };
+      return { success: true, filename: `invoice-${invoiceData.orderId || 'unknown'}.pdf` };
     } catch (error) {
-      console.error('Error generating PDF:', error);
+      console.error('Error opening print dialog:', error);
       
       toast({
-        title: "Error Generating PDF",
-        description: "Failed to create PDF. Please try again.",
+        title: "Error opening print",
+        description: "Failed to open print dialog. Please try again.",
         variant: "destructive",
       });
 
@@ -96,39 +85,23 @@ export const usePDFGenerator = () => {
 
   const generateBulkPDF = useCallback(async (invoices: InvoiceData[], onProgress?: (current: number, total: number) => void) => {
     try {
-      const results = [];
-      
-      for (let i = 0; i < invoices.length; i++) {
-        onProgress?.(i + 1, invoices.length);
-        
-        // Generate PDF for each invoice
-        const result = await generatePDF(invoices[i]);
-        results.push({
-          invoice: invoices[i],
-          result
-        });
-        
-        // Small delay between generations to prevent overwhelming the browser
-        if (i < invoices.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-      }
-
-      const successful = results.filter(r => r.result.success).length;
-      const failed = results.length - successful;
-
       toast({
-        title: "Bulk PDF Generation Complete",
-        description: `${successful} PDFs generated successfully${failed > 0 ? `, ${failed} failed` : ''}`,
+        title: "Bulk Print Mode",
+        description: "Bulk printing now uses browser print dialog. Please print each invoice individually.",
       });
-
-      return results;
+      
+      // For bulk, we'll just generate the first one as an example
+      if (invoices.length > 0) {
+        await generatePDF(invoices[0]);
+      }
+      
+      return [];
     } catch (error) {
-      console.error('Error in bulk PDF generation:', error);
+      console.error('Error in bulk print:', error);
       
       toast({
-        title: "Bulk PDF Generation Failed",
-        description: "An error occurred during bulk generation",
+        title: "Bulk Print Failed",
+        description: "An error occurred during bulk print",
         variant: "destructive",
       });
 
